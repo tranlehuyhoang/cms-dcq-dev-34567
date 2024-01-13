@@ -98,6 +98,19 @@ class TaskController extends BaseController
 			$taskComment->replyCount = TaskComment::where('reply_id', $taskComment->id)->count();
 			$data['taskCommentsWithReplyCount'][] = $taskComment;
 		}
+		$user = User::find($data['task'][0]['assign_to']);
+
+		$avatar = $user->getFirstMedia('avatar');
+		$hasAvatar = $user->hasMedia('avatar');
+		if ($hasAvatar) {
+			$data['avatar'] =
+				$avatar->getUrl();
+		} else {
+			$data['avatar'] =
+				'/assets/images/users/avatar-basic.jpg';
+			// Xử lý tương ứng tại đây
+		}
+
 		// Chuyển đổi múi giờ và định dạng thời gian cho mỗi TaskComment có reply_id khác 0
 
 		// Chuyển đổi múi giờ và định dạng thời gian cho mỗi TaskComment có reply_id khác 0

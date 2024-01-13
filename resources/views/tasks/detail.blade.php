@@ -61,7 +61,7 @@
                                     <div class="col-6">
                                         <div class="d-flex align-items-start mt-3">
                                             <div class="me-2 align-self-center">
-                                                <img src="/assets/images/users/avatar-2.jpg" alt=""
+                                                <img src="<?php echo $avatar; ?>" alt=""
                                                     class="avatar-sm rounded-circle">
                                             </div>
                                             <div class="flex-1 overflow-hidden">
@@ -234,24 +234,24 @@
                     <?php
                     if (count($arChildTasks) > 0) {
                         ?>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="header-title mb-3">Child tasks</h5>
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="header-title mb-3">Child tasks</h5>
 
-                                <div class="table-responsive mt-3">
-                                    <table class="table table-centered table-nowrap table-borderless table-sm">
-                                        <thead class="table-light">
-                                            <tr class="">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-centered table-nowrap table-borderless table-sm">
+                                    <thead class="table-light">
+                                        <tr class="">
 
-                                                <th scope="col">Tasks</th>
-                                                <th scope="col">Assign to</th>
-                                                <th scope="col">Due Date</th>
-                                                <th scope="col">Task priority</th>
-                                                <th scope="col" style="width: 85px;">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php
+                                            <th scope="col">Tasks</th>
+                                            <th scope="col">Assign to</th>
+                                            <th scope="col">Due Date</th>
+                                            <th scope="col">Task priority</th>
+                                            <th scope="col" style="width: 85px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
                                             foreach ($arChildTasks as $key => $value) {
 
                                                 if ($value['priority'] == 'hight') {
@@ -263,57 +263,58 @@
                                                 }
 
                                                 ?>
-                                                <tr>
+                                        <tr>
 
-                                                    <td>
-                                                        <a href="{{ route('task.detail', $value['id']) }}"><?php echo $value['name']; ?></a>
-                                                    </td>
-                                                    <td>
-                                                        <div>
+                                            <td>
+                                                <a
+                                                    href="{{ route('task.detail', $value['id']) }}"><?php echo $value['name']; ?></a>
+                                            </td>
+                                            <td>
+                                                <div>
 
-                                                            <a
-                                                            href="{{ route('user.detail', $value['tasks_assign_to']['id']) }}"><?php echo $value['tasks_assign_to']['name']; ?></a>
+                                                    <a
+                                                        href="{{ route('user.detail', $value['tasks_assign_to']['id']) }}"><?php echo $value['tasks_assign_to']['name']; ?></a>
+                                                </div>
+                                            </td>
+                                            <td><?php echo \Illuminate\Support\Carbon::parse($value['due_date'])->format('d/m/Y H:i'); ?></td>
+                                            <td><span class="badge <?php echo $priority; ?> p-1"><?php echo $value['priority']; ?></span>
+                                            </td>
+                                            <td>
+                                                <ul class="list-inline table-action m-0">
+                                                    <li class="list-inline-item">
+                                                        <a href="javascript:void(0);" class="action-icon px-1"> <i
+                                                                class="mdi mdi-square-edit-outline"></i></a>
+                                                    </li>
+                                                    <li class="list-inline-item">
+                                                        <div class="dropdown">
+                                                            <a class="action-icon px-1 dropdown-toggle" href="#"
+                                                                data-bs-toggle="dropdown" aria-haspopup="true"
+                                                                aria-expanded="false">
+                                                                <i class="mdi mdi-dots-vertical"></i>
+                                                            </a>
+
+                                                            <div class="dropdown-menu dropdown-menu-end">
+                                                                <a class="dropdown-item" href="#">Action</a>
+                                                                <a class="dropdown-item" href="#">Another action</a>
+                                                                <a class="dropdown-item" href="#">Something else
+                                                                    here</a>
+                                                            </div>
                                                         </div>
-                                                    </td>
-                                                    <td><?php echo \Illuminate\Support\Carbon::parse($value['due_date'])->format('d/m/Y H:i'); ?></td>
-                                                    <td><span class="badge <?php echo $priority; ?> p-1"><?php echo $value['priority']; ?></span>
-                                                    </td>
-                                                    <td>
-                                                        <ul class="list-inline table-action m-0">
-                                                            <li class="list-inline-item">
-                                                                <a href="javascript:void(0);" class="action-icon px-1"> <i
-                                                                    class="mdi mdi-square-edit-outline"></i></a>
-                                                                </li>
-                                                                <li class="list-inline-item">
-                                                                    <div class="dropdown">
-                                                                        <a class="action-icon px-1 dropdown-toggle" href="#"
-                                                                        data-bs-toggle="dropdown" aria-haspopup="true"
-                                                                        aria-expanded="false">
-                                                                        <i class="mdi mdi-dots-vertical"></i>
-                                                                    </a>
-
-                                                                    <div class="dropdown-menu dropdown-menu-end">
-                                                                        <a class="dropdown-item" href="#">Action</a>
-                                                                        <a class="dropdown-item" href="#">Another action</a>
-                                                                        <a class="dropdown-item" href="#">Something else
-                                                                        here</a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                                <?php
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                        <?php
                                             }
                                             ?>
 
-                                        </tbody>
-                                    </table>
-                                </div>
-
+                                    </tbody>
+                                </table>
                             </div>
+
                         </div>
-                        <?php
+                    </div>
+                    <?php
                     }
                     ?>
                 </div>
@@ -342,12 +343,14 @@
                                     <div class="flex-1">
                                         <h5 class="mt-0">
                                             {{ $taskComment->user->name }}
-                                            <small class="text-muted fw-normal float-end">{{ $taskComment->created_at->diffForHumans() }}</small>
+                                            <small
+                                                class="text-muted fw-normal float-end">{{ $taskComment->created_at->diffForHumans() }}</small>
                                         </h5>
                                         {{ $taskComment->content }}
 
                                         <br />
-                                        <a href="javascript:void(0);" class="text-muted font-13 d-inline-block mt-2" onclick="setReplyId('{{ $taskComment->id }}', '{{ $taskComment->user->name }}');">
+                                        <a href="javascript:void(0);" class="text-muted font-13 d-inline-block mt-2"
+                                            onclick="setReplyId('{{ $taskComment->id }}', '{{ $taskComment->user->name }}');">
                                             <i class="mdi mdi-reply"></i> Reply
                                         </a>
 
@@ -364,7 +367,8 @@
                             @endforeach
                             <div id="pagination"></div>
                             <div class="text-center mt-2">
-                                <a href="javascript:void(0);" onclick="pagination(1, '{{ $task_id }}')" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1"></i> Load more </a>
+                                <a href="javascript:void(0);" onclick="pagination(1, '{{ $task_id }}')"
+                                    class="text-danger"><i class="mdi mdi-spin mdi-loading me-1"></i> Load more </a>
                             </div>
 
                             <script>

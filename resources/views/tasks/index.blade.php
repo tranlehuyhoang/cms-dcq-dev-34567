@@ -142,6 +142,7 @@
                                                                 </td>
                                                                 <td>
                                                                     <div>
+
                                                                         <img src="<?php echo $value['avatar']; ?>" alt="image"
                                                                             class="avatar-sm img-thumbnail rounded-circle"
                                                                             title="Houston Fritz" />

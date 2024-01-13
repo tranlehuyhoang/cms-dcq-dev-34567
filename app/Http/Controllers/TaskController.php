@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Routing\Controller as BaseController;
 
@@ -42,13 +43,14 @@ class TaskController extends BaseController
 				$parentId = Tasks::where('id', $parentId)->value('parent_id');
 			}
 			$data['arTasks'][$taskId]['level'] = $level;
-			$avatarPath = '/assets/images/users/avatar-' . $data['arTasks'][$taskId]['assign_to'] . '.jpg';
 
-			if (file_exists(public_path($avatarPath))) {
-				$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-' . $data['arTasks'][$taskId]['assign_to']  . '.jpg';
+			$user = User::find($data['arTasks'][$taskId]['assign_to']);
+			$avatar = $user->getFirstMedia('avatar');
+			$hasAvatar = $user->hasMedia('avatar');
+			if ($hasAvatar) {
+				$data['arTasks'][$taskId]['avatar'] = $avatar->getUrl();
 			} else {
-				$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic..jpg';
-				// Đường dẫn ảnh không tồn tại
+				$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
 				// Xử lý tương ứng tại đây
 			}
 		}
@@ -174,6 +176,7 @@ class TaskController extends BaseController
 
 		return redirect()->route('task.detail', ['id' => $taskId]);
 	}
+
 	public function get_child_tasks(Request $request)
 	{
 		$id = $request->input('id');
@@ -208,13 +211,18 @@ class TaskController extends BaseController
 			}
 			$arTasks[$taskId]['level'] = $level;
 			$arTasks[$taskId]['parentIds'] = array_reverse($parentIds);
-			$avatarPath = '/assets/images/users/avatar-' . $task['assign_to'] . '.jpg';
 
-			if (file_exists(public_path($avatarPath))) {
-				$arTasks[$taskId]['avatar'] = '/assets/images/users/avatar-' . $task['assign_to'] . '.jpg';
+			// Get the avatar path using HasMedia
+			$avatarPath = '/assets/images/users/avatar-basic.jpg';
+			$user = User::find($task['assign_to']);
+
+			$avatar = $user->getFirstMedia('avatar');
+			$hasAvatar = $user->hasMedia('avatar');
+			if ($hasAvatar) {
+				$arTasks[$taskId]['avatar'] = $avatar->getUrl();
 			} else {
 				$arTasks[$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
-				// Handle the case when the image path does not exist
+				// Xử lý tương ứng tại đây
 			}
 		}
 

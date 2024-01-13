@@ -114,6 +114,7 @@
                                                                 } else {
                                                                     $classStatus = '';
                                                                 }
+                                                                
                                                                 ?>
                                                             <tr id="child_{{ $value['id'] }}"
                                                                 class="child_tasks_<?php echo $value['parent_id']; ?> child_tasks_level_<?php echo $value['level']; ?>">

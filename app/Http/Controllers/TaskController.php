@@ -24,12 +24,18 @@ class TaskController extends BaseController
 	public function index()
 	{
 		$user = Auth::user();
-
+		$data['role']  = Roles::where('id', $user->role_id)->value('code');
 		$data['arRoles'] = Roles::whereIn('code', [User::ADMIN, User::MANAGER])->get()->pluck('name', 'id')->toArray();
-		$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)->get()->keyBy('id')->toArray();
+		if ($data['role'] == 'admin') {
+			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)->get()->keyBy('id')->toArray();
+			# code...
+		} else {
 
+			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('assign_to', '=', 4)->get()->keyBy('id')->toArray();
+		}
+		// dd($data['arTasks']);
 		foreach ($data['arTasks'] as $taskId => $task) {
-			// Kiểm tra xem có nhiệm vụ con với parent_id = task.id hay không
+
 			$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
 
 			// Gán giá trị biến kiểm tra `hasChildren` vào nhiệm vụ hiện tại
@@ -54,6 +60,7 @@ class TaskController extends BaseController
 				// Xử lý tương ứng tại đây
 			}
 		}
+
 
 		$data['arProject'] = Projects::get()->pluck('name', 'id')->toArray();
 		$data['user_id'] = $user->id;
@@ -126,6 +133,11 @@ class TaskController extends BaseController
 
 	public function add(Request $request)
 	{
+		$user = Auth::user();
+		$data['role']  = Roles::where('id', $user->role_id)->value('code');
+		if ($data['role'] == 'admin') {
+			return redirect()->back();
+		}
 		$data['users'] = User::get()->pluck('name', 'id')->toArray();
 
 		$data['parentId'] = $request->parent_id;
@@ -146,6 +158,11 @@ class TaskController extends BaseController
 
 	public function edit(Request $request)
 	{
+		$user = Auth::user();
+		$data['role']  = Roles::where('id', $user->role_id)->value('code');
+		if ($data['role'] == 'admin') {
+			return redirect()->back();
+		}
 		$data['task'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('id', '=', $request->id)->get()->toArray();
 
 		$data['users'] = User::get()->pluck('name', 'id')->toArray();

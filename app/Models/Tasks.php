@@ -5,11 +5,16 @@ namespace App\Models;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+class Tasks extends Model implements HasMedia
+{
 
-class Tasks extends Model {
-    public static $rules = [
-    ];
+    use HasFactory, InteractsWithMedia;
+
+    public static $rules = [];
 
     public $table = 'tasks';
 
@@ -41,15 +46,18 @@ class Tasks extends Model {
         "low" => 'Low'
     );
 
-    public function tasksAssignTo() {
+    public function tasksAssignTo()
+    {
         return $this->belongsTo(User::class, 'assign_to');
     }
 
-    public function tasksCreatedBy() {
+    public function tasksCreatedBy()
+    {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function tasksApprovedBy() {
+    public function tasksApprovedBy()
+    {
         return $this->belongsTo(User::class, 'approved_by');
     }
 }

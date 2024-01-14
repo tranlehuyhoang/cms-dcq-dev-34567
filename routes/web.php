@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
 	Route::get('tasks/{parent_id}/add', [TaskController::class, 'add'])->name('task.add');
 	Route::get('tasks/{id}', [TaskController::class, 'detail'])->name('task.detail');
 	Route::post('tasks/get_child_tasks', [TaskController::class, 'get_child_tasks'])->name('task.get_child_tasks');
+	Route::post('tasks/upload_media', [TaskController::class, 'upload_media'])->name('task.upload_media');
 
 	// Người dùng
 	Route::get('user/add', [UserController::class, 'add'])->name('user.add');
@@ -55,4 +56,3 @@ Route::middleware(['auth'])->group(function () {
 	Route::post('comment/getcommentlevel2', [TaskCommentController::class, 'getcommentlevel2'])->name('taskcomment.getcommentlevel2');
 	Route::post('comment/getcommentlevel3', [TaskCommentController::class, 'getcommentlevel3'])->name('taskcomment.getcommentlevel3');
 });
-

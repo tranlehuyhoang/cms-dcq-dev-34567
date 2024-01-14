@@ -74,7 +74,7 @@ class TaskController extends BaseController
 	public function detail(Request $request)
 	{
 		$user = Auth::user();
-
+		$taskId = $request->id;
 		$data = array();
 
 		$data['task'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('id', '=', $request->id)->get()->toArray();
@@ -88,6 +88,7 @@ class TaskController extends BaseController
 		$data['taskComments'] = TaskComment::where('task_id', '=', $request->id)->get();
 
 		$data['user_id'] =  Auth::user()->id;
+
 
 		$data['taskComments'] = TaskComment::with('user')
 			->where('task_id', $request->id)
@@ -129,6 +130,8 @@ class TaskController extends BaseController
 		$data['taskCommentss'] = TaskComment::where('task_id', '=', $request->id)->get();
 
 		$data['commentCount'] = count($data['taskCommentss']);
+		$task = Tasks::find($taskId);
+		$data['media'] = $task->getMedia('task_files');
 		return view('tasks.detail', $data);
 	}
 
@@ -175,6 +178,7 @@ class TaskController extends BaseController
 
 		return view('tasks.edit', $data);
 	}
+
 
 	public function update(Request $request)
 	{
@@ -262,5 +266,18 @@ class TaskController extends BaseController
 		$html = view('tasks.render_child_tasks', ['arTasks' => $arTasks])->render();
 
 		return response()->json(['html' => $html], 200);
+	}
+	public function upload_media(Request $request)
+	{
+
+		$taskId = $request->input('task_id');
+		$task = Tasks::find($taskId);
+
+		if ($request->hasFile('file')) {
+			$file = $request->file('file');
+			$task->addMedia($file)->toMediaCollection('task_files');
+		}
+
+		return response()->json(['message' => 'Media uploaded successfully.']);
 	}
 }

@@ -152,9 +152,13 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div>
-                                        <form action="/" method="post" class="dropzone" id="myAwesomeDropzone"
-                                            data-plugin="dropzone" data-previews-container="#file-previews"
-                                            data-upload-preview-template="#uploadPreviewTemplate">
+                                        <form action="{{ route('task.upload_media') }}" method="post" class="dropzone"
+                                            id="myAwesomeDropzone" data-plugin="dropzone"
+                                            data-previews-container="#file-previews"
+                                            data-upload-preview-template="#uploadPreviewTemplate"
+                                            enctype="multipart/form-data">
+                                            @csrf
+                                            <input name="task_id" hidden type="text" value="{{ $task_id }}" />
                                             <div class="fallback">
                                                 <input name="file" type="file" />
                                             </div>
@@ -164,6 +168,7 @@
                                                 <h4>Drop files here or click to upload.</h4>
                                             </div>
                                         </form>
+
                                     </div>
                                 </div>
 
@@ -196,7 +201,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="card border mb-0">
+                                        <div class="card border mb-2">
                                             <div class="p-2">
                                                 <div class="row align-items-center">
                                                     <div class="col-auto">
@@ -221,12 +226,44 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                        @if ($media)
+                                            @foreach ($media as $item)
+                                                <div class="card border mb-2">
+                                                    <div class="p-2">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-auto">
+                                                                <div class="avatar-sm">
+                                                                    <span
+                                                                        class="avatar-title badge-soft-primary text-primary rounded">
+                                                                        {{ $item->mime_type }}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col ps-0">
+                                                                <a href="{{ $item->getUrl() }}" download=""
+                                                                    class="text-muted fw-semibold">{{ $item->name }}</a>
+                                                                <p class="mb-0 font-12">{{ $item->size }}</p>
+                                                            </div>
+                                                            <div class="col-auto">
+                                                                <!-- Button -->
+                                                                <a href="{{ $item->getUrl() }}" download=""
+                                                                    class="btn btn-link font-16 text-muted">
+                                                                    <i class="ri-download-2-line"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p>Không có media cho task này.</p>
+                                        @endif
                                         <!-- Preview -->
                                         <div class="dropzone-previews mt-2" id="file-previews"></div>
 
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>

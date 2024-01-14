@@ -235,14 +235,16 @@
                                                                 <div class="avatar-sm">
                                                                     <span
                                                                         class="avatar-title badge-soft-primary text-primary rounded">
-                                                                        {{ $item->mime_type }}
+                                                                        {{ strtoupper(Str::after($item->file_name, '.')) }}
                                                                     </span>
                                                                 </div>
                                                             </div>
                                                             <div class="col ps-0">
                                                                 <a href="{{ $item->getUrl() }}" download=""
                                                                     class="text-muted fw-semibold">{{ $item->name }}</a>
-                                                                <p class="mb-0 font-12">{{ $item->size }}</p>
+                                                                <p class="mb-0 font-12">
+                                                                    {{ round($item->size / 1024 / 1024, 2) }} MB
+                                                                </p>
                                                             </div>
                                                             <div class="col-auto">
                                                                 <!-- Button -->

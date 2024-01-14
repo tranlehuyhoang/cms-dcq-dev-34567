@@ -31,15 +31,18 @@ class TaskController extends BaseController
 			# code...
 		} else {
 
-			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('assign_to', '=', 4)->get()->keyBy('id')->toArray();
+			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('assign_to', '=', $user->id)->get()->keyBy('id')->toArray();
 		}
 		// dd($data['arTasks']);
 		foreach ($data['arTasks'] as $taskId => $task) {
 
 			$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
-
+			if ($data['role'] == 'admin') {
+				$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
+			} else {
+				$data['arTasks'][$taskId]['hasChildren'] = false;
+			}
 			// Gán giá trị biến kiểm tra `hasChildren` vào nhiệm vụ hiện tại
-			$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
 
 			// Calculate the level of the current task
 			$level = 0;

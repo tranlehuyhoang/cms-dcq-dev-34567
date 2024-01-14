@@ -77,6 +77,9 @@ class TaskController extends BaseController
 		$taskId = $request->id;
 		$data = array();
 
+		$data['role']  = Roles::where('id', $user->role_id)->value('code');
+
+
 		$data['task'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('id', '=', $request->id)->get()->toArray();
 
 		$data['arChildTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', $request->id)->get()->toArray();
@@ -269,15 +272,19 @@ class TaskController extends BaseController
 	}
 	public function upload_media(Request $request)
 	{
+		$user = Auth::user();
+		$data['role']  = Roles::where('id', $user->role_id)->value('code');
+		if ($data['role'] == 'admin') {
+			$taskId = $request->input('task_id');
+			$task = Tasks::find($taskId);
 
-		$taskId = $request->input('task_id');
-		$task = Tasks::find($taskId);
+			if ($request->hasFile('file')) {
+				$file = $request->file('file');
+				$task->addMedia($file)->toMediaCollection('task_files');
+			}
 
-		if ($request->hasFile('file')) {
-			$file = $request->file('file');
-			$task->addMedia($file)->toMediaCollection('task_files');
+			return response()->json(['message' => 'Media uploaded successfully.']);
 		}
-
-		return response()->json(['message' => 'Media uploaded successfully.']);
+		return redirect()->back();
 	}
 }

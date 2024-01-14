@@ -55,4 +55,18 @@ Route::middleware(['auth'])->group(function () {
 	Route::post('comment/pagination', [TaskCommentController::class, 'pagination'])->name('taskcomment.pagination');
 	Route::post('comment/getcommentlevel2', [TaskCommentController::class, 'getcommentlevel2'])->name('taskcomment.getcommentlevel2');
 	Route::post('comment/getcommentlevel3', [TaskCommentController::class, 'getcommentlevel3'])->name('taskcomment.getcommentlevel3');
+
+	Route::get('/storage/{filename}', function ($filename) {
+		$path = storage_path('app/public/' . $filename);
+
+		if (!file_exists($path)) {
+			abort(404);
+		}
+
+		$file = file_get_contents($path);
+		$type = mime_content_type($path);
+
+		return response($file, 200)
+			->header('Content-Type', $type);
+	})->where('filename', '(.*)');
 });

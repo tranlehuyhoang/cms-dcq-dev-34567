@@ -150,7 +150,7 @@
                             <h5 class="header-title mb-3">Attachments</h5>
 
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-6" <?php echo $role == 'admin' ? '' : 'hidden'; ?>>
                                     <div>
                                         <form action="{{ route('task.upload_media') }}" method="post" class="dropzone"
                                             id="myAwesomeDropzone" data-plugin="dropzone"
@@ -174,58 +174,7 @@
 
                                 <div class="col-sm-6">
                                     <div class="mt-4 mt-md-0">
-                                        <div class="card border mb-2">
-                                            <div class="p-2">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-                                                        <div class="avatar-sm">
-                                                            <span
-                                                                class="avatar-title badge-soft-primary text-primary rounded">
-                                                                ZIP
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col ps-0">
-                                                        <a href="javascript:void(0);"
-                                                            class="text-muted fw-semibold">Minton-sketch-design.zip</a>
-                                                        <p class="mb-0 font-12">2.3 MB</p>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <!-- Button -->
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-link font-16 text-muted">
-                                                            <i class="ri-download-2-line"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="card border mb-2">
-                                            <div class="p-2">
-                                                <div class="row align-items-center">
-                                                    <div class="col-auto">
-                                                        <div class="avatar-sm">
-                                                            <span class="avatar-title bg-secondary rounded text-light">
-                                                                .MP4
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col ps-0">
-                                                        <a href="javascript:void(0);"
-                                                            class="text-muted fw-semibold">Admin-bug-report.mp4</a>
-                                                        <p class="mb-0 font-12">7.05 MB</p>
-                                                    </div>
-                                                    <div class="col-auto">
-                                                        <!-- Button -->
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-link font-16 text-muted">
-                                                            <i class="ri-download-2-line"></i>
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                         @if ($media)
                                             @foreach ($media as $item)
                                                 <div class="card border mb-2">

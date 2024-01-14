@@ -49,6 +49,12 @@ return [
             'root'   => public_path('media'),
             'url'    => env('APP_URL') . '/media',
         ],
+        'protected' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+            'url' => env('APP_URL'),
+            'visibility' => 'private',
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

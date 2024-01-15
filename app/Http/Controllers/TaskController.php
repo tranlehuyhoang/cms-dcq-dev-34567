@@ -194,8 +194,9 @@ class TaskController extends BaseController
 		$data['taskCommentss'] = TaskComment::where('task_id', '=', $request->id)->get();
 
 		$data['commentCount'] = count($data['taskCommentss']);
-		$task = Tasks::find($taskId);
+		$task = Tasks::find($request->id);
 		$data['media'] = $task->getMedia('task_files');
+		// dd($data['media'])
 		return view('tasks.detail', $data);
 	}
 
@@ -335,17 +336,15 @@ class TaskController extends BaseController
 	{
 		$user = Auth::user();
 		$data['role']  = Roles::where('id', $user->role_id)->value('code');
-		if ($data['role'] == 'admin') {
-			$taskId = $request->input('task_id');
-			$task = Tasks::find($taskId);
 
-			if ($request->hasFile('file')) {
-				$file = $request->file('file');
-				$task->addMedia($file)->toMediaCollection('task_files');
-			}
+		$taskId = $request->input('task_id');
+		$task = Tasks::find($taskId);
 
-			return response()->json(['message' => 'Media uploaded successfully.']);
+		if ($request->hasFile('file')) {
+			$file = $request->file('file');
+			$task->addMedia($file)->toMediaCollection('task_files');
 		}
-		return redirect()->back();
+
+		return response()->json(['message' => 'Media uploaded successfully.']);
 	}
 }

@@ -231,46 +231,90 @@
                                     <thead class="table-light">
                                         <tr class="">
 
+                                            <th scope="col">
+                                                Task ID
+                                            </th>
                                             <th scope="col">Tasks</th>
                                             <th scope="col">Assign to</th>
                                             <th scope="col">Due Date</th>
-                                            <th scope="col">Task priority</th>
+                                            <th scope="col">Priority</th>
+                                            <th scope="col">Status</th>
                                             <th scope="col" style="width: 85px;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                            foreach ($arChildTasks as $key => $value) {
+                                        foreach ($arChildTasks as $key => $value) {
+                                            if ($value['project_id'] != $project_id) {
+                                                continue;
+                                            }
+                                            if ($value['priority'] == 'hight') {
+                                                $priority = 'badge-soft-danger';
+                                            } elseif ($value['priority'] == 'medium') {
+                                                $priority = 'badge-soft-info';
+                                            } else {
+                                                $priority = 'badge-soft-success';
+                                            }
 
-                                                if ($value['priority'] == 'hight') {
-                                                    $priority = 'badge-soft-danger';
-                                                } elseif ($value['priority'] == 'medium') {
-                                                    $priority = 'badge-soft-info';
-                                                } else {
-                                                    $priority = 'badge-soft-success';
-                                                }
-
-                                                ?>
-                                        <tr>
-
+                                            if ($value['status'] == 'complete') {
+                                                $classStatus = 'complete-task';
+                                                $priority = '';
+                                            } else {
+                                                $classStatus = '';
+                                            }
+                                            
+                                            ?>
+                                        <tr id="child_{{ $value['id'] }}"
+                                            class="child_tasks_<?php echo $value['parent_id']; ?> child_tasks_level_<?php echo $value['level']; ?>">
                                             <td>
-                                                <a
+
+                                                <label class="ps-1 label-task form-check-label <?php echo $classStatus; ?>"
+                                                    for="tasktodayCheck01">
+                                                    <span class="task-arrow">
+                                                        <?php
+                                                            if ($value['hasChildren']) {
+                                                                ?>
+                                                        <i class="fe-chevron-right"
+                                                            onclick="showChildTasks(this, '<?php echo $value['id']; ?>')"
+                                                            id="<?php echo $value['id']; ?>"></i>
+                                                        <?php
+                                                            }
+                                                            ?>
+                                                    </span>
+                                                    #<?php echo $value['id']; ?>
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <a class="<?php echo $classStatus; ?>"
                                                     href="{{ route('task.detail', $value['id']) }}"><?php echo $value['name']; ?></a>
                                             </td>
                                             <td>
                                                 <div>
 
-                                                    <a
+                                                    <img src="<?php echo $value['avatar']; ?>" alt="image"
+                                                        class="avatar-sm img-thumbnail rounded-circle"
+                                                        title="Houston Fritz" />
+                                                    <a class="<?php echo $classStatus; ?>"
                                                         href="{{ route('user.detail', $value['tasks_assign_to']['id']) }}"><?php echo $value['tasks_assign_to']['name']; ?></a>
                                                 </div>
                                             </td>
-                                            <td><?php echo \Illuminate\Support\Carbon::parse($value['due_date'])->format('d/m/Y H:i'); ?></td>
-                                            <td><span class="badge <?php echo $priority; ?> p-1"><?php echo $value['priority']; ?></span>
+                                            <td>
+                                                <span class="<?php echo $classStatus; ?>"><?php echo \Illuminate\Support\Carbon::parse($value['due_date'])->format('d/m/Y H:i'); ?></span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge <?php echo $priority; ?> p-1 <?php echo $classStatus; ?>"><?php echo $value['priority']; ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="<?php echo $classStatus; ?>">
+                                                    <?php echo $value['status']; ?>
+                                                </span>
                                             </td>
                                             <td>
                                                 <ul class="list-inline table-action m-0">
                                                     <li class="list-inline-item">
-                                                        <a href="javascript:void(0);" class="action-icon px-1"> <i
+                                                        <a href="{{ route('task.edit', $value['id']) }}"
+                                                            class="action-icon px-1"> <i
                                                                 class="mdi mdi-square-edit-outline"></i></a>
                                                     </li>
                                                     <li class="list-inline-item">
@@ -293,8 +337,8 @@
                                             </td>
                                         </tr>
                                         <?php
-                                            }
-                                            ?>
+                                        }
+                                        ?>
 
                                     </tbody>
                                 </table>
@@ -306,7 +350,40 @@
                     }
                     ?>
                 </div>
+                <script>
+                    showChildTasks = function(element, id) {
 
+                        var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        var element = $('i.fe-chevron-right#' + id);
+
+                        if (element.hasClass('fe-chevron-right')) {
+                            $.ajax({
+                                url: '{{ route('task.get_child_tasks') }}',
+                                method: 'POST',
+                                data: {
+                                    id: id,
+                                    _token: '{{ csrf_token() }}' // Thêm mã CSRF vào yêu cầu
+                                },
+                                success: function(response) {
+                                    var child_tasks = response.html;
+                                    $('#child_' + id).after(child_tasks);
+
+                                    element.removeClass('fe-chevron-right').addClass('fe-chevron-down');
+                                },
+                                error: function(xhr, status, error) {
+                                    // Xử lý lỗi
+                                    console.error(error);
+                                }
+                            });
+                        } else {
+                            var element = $('i.fe-chevron-down#' + id);
+
+                            element.removeClass('fe-chevron-down').addClass('fe-chevron-right');
+                            $('tr.child_tasks_' + id).remove();
+                        }
+
+                    }
+                </script>
                 <div class="col-xl-4">
                     <div class="card">
                         <div class="card-body">

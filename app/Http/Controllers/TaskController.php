@@ -117,9 +117,34 @@ class TaskController extends BaseController
 
 
 		$data['task'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('id', '=', $request->id)->get()->toArray();
+		// dd($data['task']);
+		$data['project_id'] =  $data['task'][0]['project_id'];
+		// $data['arChildTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', $request->id)->get()->toArray();
+		$data['arChildTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)->get()->keyBy('id')->toArray();
+		foreach ($data['arChildTasks'] as $taskId => $task) {
 
-		$data['arChildTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', $request->id)->get()->toArray();
+			$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
 
+			$data['arChildTasks'][$taskId]['hasChildren'] = $hasChildren;
+
+			$level = 0;
+			$parentId = $task['parent_id'];
+			while ($parentId != 0) {
+				$level++;
+				$parentId = Tasks::where('id', $parentId)->value('parent_id');
+			}
+			$data['arChildTasks'][$taskId]['level'] = $level;
+
+			$user = User::find($data['arChildTasks'][$taskId]['assign_to']);
+			$avatar = $user->getFirstMedia('avatar');
+			$hasAvatar = $user->hasMedia('avatar');
+			if ($hasAvatar) {
+				$data['arChildTasks'][$taskId]['avatar'] = $avatar->getUrl();
+			} else {
+				$data['arChildTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
+				// Xử lý tương ứng tại đây
+			}
+		}
 		$data['arStatus'] = Tasks::STATUS;
 		$data['arPriority'] = Tasks::PRIORITY;
 		$data['task_id'] = $request->id;

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -12,7 +10,7 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Models\Roles;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -31,12 +29,11 @@ class UserController extends BaseController
 	{
 		$data['arUsers'] = User::with('userRole')->get()->toArray();
 		$users = User::with('userRole')->get();
+		$data['arRole'] = Auth::user();
 
 		foreach ($users as $user) {
 			$data['avatarUsers'][$user->id] = User::find($user->id)->getMedia('avatar');
 		}
-
-		// dd($data);
 
 		return view('users.index', $data);
 	}
@@ -73,7 +70,10 @@ class UserController extends BaseController
 
 	public function detail(Request $request)
 	{
-		return view('users.detail');
+		$data['user'] = User::with('userRole')->where('id', '=', $request->id)->get()->toArray();
+		$data['arRole'] = Roles::get()->pluck('name', 'id')->toArray();
+		$data['avatarUsers'][$request->id] = User::find($request->id)->getMedia('avatar');
+		return view('users.detail', $data);
 	}
 
 	public function update(Request $request)

@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\Projects;
 use App\Models\TaskComment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends BaseController
 {
@@ -31,17 +32,25 @@ class TaskController extends BaseController
 			# code...
 		} else {
 
-			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('assign_to', '=', $user->id)->get()->keyBy('id')->toArray();
+			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)
+				->where('assign_to', '=', $user->id)->where(function ($query) {
+					$query->where('id', '!=', 0)
+						->orWhereExists(function ($query) {
+							$query->select(DB::raw(1))
+								->from('tasks as t2')
+								->whereRaw('t2.parent_id = tasks.id');
+						});
+				})->get()->keyBy('id')->toArray();
 		}
 		// dd($data['arTasks']);
 		foreach ($data['arTasks'] as $taskId => $task) {
 
 			$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
-			if ($data['role'] == 'admin') {
-				$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
-			} else {
-				$data['arTasks'][$taskId]['hasChildren'] = false;
-			}
+			// if ($data['role'] == 'admin') {
+			$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
+			// } else {
+			// 	$data['arTasks'][$taskId]['hasChildren'] = false;
+			// }
 			// Gán giá trị biến kiểm tra `hasChildren` vào nhiệm vụ hiện tại
 
 			// Calculate the level of the current task
@@ -144,7 +153,7 @@ class TaskController extends BaseController
 	{
 		$user = Auth::user();
 		$data['role']  = Roles::where('id', $user->role_id)->value('code');
-		if ($data['role'] == 'admin') {
+		if ($data['role'] !== 'admin') {
 			return redirect()->back();
 		}
 		$data['users'] = User::get()->pluck('name', 'id')->toArray();
@@ -169,7 +178,7 @@ class TaskController extends BaseController
 	{
 		$user = Auth::user();
 		$data['role']  = Roles::where('id', $user->role_id)->value('code');
-		if ($data['role'] == 'admin') {
+		if ($data['role'] !== 'admin') {
 			return redirect()->back();
 		}
 		$data['task'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('id', '=', $request->id)->get()->toArray();

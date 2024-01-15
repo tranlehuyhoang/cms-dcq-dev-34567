@@ -18,7 +18,7 @@
     
     $strClass = '';
     foreach ($value['parentIds'] as $parentId) {
-        $strClass .= 'child_tasks_'.$parentId;
+        $strClass .= 'child_tasks_'.$parentId. ' ' ;
     }
 
     ?>

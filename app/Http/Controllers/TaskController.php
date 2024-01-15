@@ -28,50 +28,77 @@ class TaskController extends BaseController
 		$data['role']  = Roles::where('id', $user->role_id)->value('code');
 		$data['arRoles'] = Roles::whereIn('code', [User::ADMIN, User::MANAGER])->get()->pluck('name', 'id')->toArray();
 		if ($data['role'] == 'admin') {
-			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)->get()->keyBy('id')->toArray();
 			# code...
-		} else {
+			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)->get()->keyBy('id')->toArray();
+			foreach ($data['arTasks'] as $taskId => $task) {
 
-			$data['arTasks'] = Tasks::with('tasksAssignTo')->with('tasksCreatedBy')->with('tasksApprovedBy')->where('parent_id', '=', 0)
-				->where('assign_to', '=', $user->id)->where(function ($query) {
-					$query->where('id', '!=', 0)
-						->orWhereExists(function ($query) {
-							$query->select(DB::raw(1))
-								->from('tasks as t2')
-								->whereRaw('t2.parent_id = tasks.id');
-						});
-				})->get()->keyBy('id')->toArray();
+				$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
+
+				$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
+
+				$level = 0;
+				$parentId = $task['parent_id'];
+				while ($parentId != 0) {
+					$level++;
+					$parentId = Tasks::where('id', $parentId)->value('parent_id');
+				}
+				$data['arTasks'][$taskId]['level'] = $level;
+
+				$user = User::find($data['arTasks'][$taskId]['assign_to']);
+				$avatar = $user->getFirstMedia('avatar');
+				$hasAvatar = $user->hasMedia('avatar');
+				if ($hasAvatar) {
+					$data['arTasks'][$taskId]['avatar'] = $avatar->getUrl();
+				} else {
+					$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
+					// Xử lý tương ứng tại đây
+				}
+			}
+		} else {
+			$data['arTasks'] = Tasks::with('tasksAssignTo')
+				->with('tasksCreatedBy')
+				->with('tasksApprovedBy')
+				->where('parent_id', '=', 0)
+				->get()
+				->keyBy('id')
+				->toArray();
+
+			// dd($data['arTasks']);
+
+			foreach ($data['arTasks'] as $taskId => $task) {
+				$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
+				if (!$hasChildren && $task['assign_to'] != $user->id) {
+					unset($data['arTasks'][$taskId]);
+				}
+			}
+			foreach ($data['arTasks'] as $taskId => $task) {
+
+				$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
+
+				$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
+
+				$level = 0;
+				$parentId = $task['parent_id'];
+				while ($parentId != 0) {
+					$level++;
+					$parentId = Tasks::where('id', $parentId)->value('parent_id');
+				}
+				$data['arTasks'][$taskId]['level'] = $level;
+
+				$user = User::find($data['arTasks'][$taskId]['assign_to']);
+				$avatar = $user->getFirstMedia('avatar');
+				$hasAvatar = $user->hasMedia('avatar');
+				if ($hasAvatar) {
+					$data['arTasks'][$taskId]['avatar'] = $avatar->getUrl();
+				} else {
+					$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
+					// Xử lý tương ứng tại đây
+				}
+			}
+			// dd($data['arTasks_user']);
 		}
 		// dd($data['arTasks']);
-		foreach ($data['arTasks'] as $taskId => $task) {
 
-			$hasChildren = Tasks::where('parent_id', '=', $taskId)->exists();
-			// if ($data['role'] == 'admin') {
-			$data['arTasks'][$taskId]['hasChildren'] = $hasChildren;
-			// } else {
-			// 	$data['arTasks'][$taskId]['hasChildren'] = false;
-			// }
-			// Gán giá trị biến kiểm tra `hasChildren` vào nhiệm vụ hiện tại
-
-			// Calculate the level of the current task
-			$level = 0;
-			$parentId = $task['parent_id'];
-			while ($parentId != 0) {
-				$level++;
-				$parentId = Tasks::where('id', $parentId)->value('parent_id');
-			}
-			$data['arTasks'][$taskId]['level'] = $level;
-
-			$user = User::find($data['arTasks'][$taskId]['assign_to']);
-			$avatar = $user->getFirstMedia('avatar');
-			$hasAvatar = $user->hasMedia('avatar');
-			if ($hasAvatar) {
-				$data['arTasks'][$taskId]['avatar'] = $avatar->getUrl();
-			} else {
-				$data['arTasks'][$taskId]['avatar'] = '/assets/images/users/avatar-basic.jpg';
-				// Xử lý tương ứng tại đây
-			}
-		}
 
 
 		$data['arProject'] = Projects::get()->pluck('name', 'id')->toArray();
